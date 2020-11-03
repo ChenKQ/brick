@@ -64,6 +64,7 @@ int FFMpegWriter::init(const std::string& url, int width, int height, int frameR
     {
         return AVFORMAT_WRITE_HEADER_ERROR;
     }
+    return ErrorCode::SUCCESS;
 }
 
 void FFMpegWriter::destroy()
@@ -119,6 +120,7 @@ int FFMpegWriter::transfer(AVFrame* dstFrame, const unsigned char * const *data,
                       m_video_width, m_video_height);
     }
     dstFrame->pts = m_next_pts++;
+    return ErrorCode::SUCCESS;
 
 //    if(m_pixel_format == PixelFormat::YUV420P)
 //    {
