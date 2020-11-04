@@ -95,10 +95,7 @@ public:
 
     inline int getVideoWidth() const {return m_video_width; }
     inline int getVideoHeight() const {return m_video_height; }
-    inline PixelFormat getPixelFormat() const
-    {
-        return static_cast<PixelFormat>(m_pixel_format);
-    }
+    inline int getPixelFormat() const {return m_pixel_format; }
 
 private:
     std::string m_url;
@@ -113,12 +110,12 @@ private:
     AVCodecContext *m_video_codec_ctx = nullptr;
     AVCodecContext *m_audio_codec_ctx = nullptr;
 
-    AVPacket m_pkt;
+    AVPacket *m_pkt = nullptr;
     AVFrame *m_frame = nullptr;
 
     int m_video_width;
     int m_video_height;
-    AVPixelFormat m_pixel_format;
+    int m_pixel_format;
 
     int m_video_frame_count = 0;
     int m_audio_frame_count = 0;

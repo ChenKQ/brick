@@ -21,7 +21,7 @@ class FFMpegWriter final
 {
 public:
     /* Constructor and Deconstructor */
-    FFMpegWriter() = default;
+    FFMpegWriter();
     ~FFMpegWriter();
 
     /* copy and move are forbidden */
@@ -40,7 +40,7 @@ public:
      * @return ErrorCode
      */
     int init(const std::string& url, int width, int height, int frameRate,
-             PixelFormat pixelFormat);
+             int pixelFormat);
 
     /**
      * @brief transer : transfer the frame data from data to dstFrame
@@ -53,7 +53,7 @@ public:
      * @return ErrorCode
      */
     int transfer(AVFrame* dstFrame, const unsigned char* const* data, const int* linesize,
-                 int width, int height, PixelFormat pixelFormat);
+                 int width, int height, int pixelFormat);
 
     /**
      * @brief write : transfer the picture in frame to AVPacket and then save to disk
@@ -62,7 +62,7 @@ public:
      */
     int write(AVFrame* frame);
 
-    inline PixelFormat getPixelFormat() const {return m_pixel_format;}
+    inline int getPixelFormat() const {return m_pixel_format;}
     inline int getWidth() const {return m_video_width;}
     inline int getHeight() const {return m_video_height;}
 
@@ -85,7 +85,7 @@ private:
     int m_video_width = 0;
     int m_video_height = 0;
     int m_fps = 25;
-    PixelFormat m_pixel_format = PixelFormat::RGB24;
+    int m_pixel_format;
     int m_have_video = 0;
     int m_encode_video = 0;
 
@@ -138,7 +138,7 @@ public:
      * @param pixelFormat : pixel format of each input picture
      */
     void fillPicture(FFMpegWriter& writer, const unsigned char* const* data, const int* linesize,
-                     int width, int height, PixelFormat pixelFormat);
+                     int width, int height, int pixelFormat);
 
     /**
      * @brief start : it starts a new saving thread and saving frames in the buffer to disk
@@ -172,7 +172,7 @@ private:
     std::thread m_thread;
 
 private:
-    int allocBuffer(PixelFormat pix_fmt, int width, int height);
+    int allocBuffer(int pix_fmt, int width, int height);
     int deallocBuffer();
 
     void keepWritingFrames(FFMpegWriter& writer);

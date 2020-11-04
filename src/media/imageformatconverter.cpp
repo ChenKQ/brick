@@ -1,3 +1,4 @@
+#include "ffmpegpriv.h"
 #include "media/imageformatconverter.h"
 
 namespace brick
@@ -10,8 +11,8 @@ ImageFormatConverter::~ImageFormatConverter()
     destroy();
 }
 
-int ImageFormatConverter::create(int src_width, int src_height, PixelFormat src_pix_format,
-                                 int dst_width, int dst_height, PixelFormat dst_pix_format)
+int ImageFormatConverter::create(int src_width, int src_height, int src_pix_format,
+                                 int dst_width, int dst_height, int dst_pix_format)
 
 {
     m_src_width = src_width;

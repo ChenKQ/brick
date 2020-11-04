@@ -1,4 +1,6 @@
+#include "ffmpegpriv.h"
 #include "media/ffmpeg.h"
+
 
 namespace brick
 {
@@ -46,7 +48,7 @@ int FFMpeg::WriteFrame(AVFormatContext *fmt_ctx, AVCodecContext *codec_ctx, AVSt
     return ret == AVERROR_EOF ? 1 : 0;
 }
 
-int FFMpeg::AllocPicture(AVFrame **new_frame, brick::media::PixelFormat pix_fmt, int width, int height)
+int FFMpeg::AllocPicture(AVFrame **new_frame, int pix_fmt, int width, int height)
 {
     AVFrame* picture = nullptr;
 
@@ -79,7 +81,7 @@ void swap(brick::media::VideoFrame &lhs, brick::media::VideoFrame &rhs)
     swap(lhs.m_height, rhs.m_height);
 }
 
-VideoFrame::VideoFrame(brick::media::PixelFormat pix_fmt, int width, int height):
+VideoFrame::VideoFrame(int pix_fmt, int width, int height):
     m_pixal_format(pix_fmt), m_width(width), m_height(height)
 {
     allocMemory();
@@ -106,7 +108,7 @@ VideoFrame::~VideoFrame()
     deallocMemory();
 }
 
-int VideoFrame::init(brick::media::PixelFormat pix_fmt, int width, int height)
+int VideoFrame::init(int pix_fmt, int width, int height)
 {
     if(m_frame != nullptr)
     {

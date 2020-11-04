@@ -2,8 +2,9 @@ cmake_minimum_required(VERSION 3.15)
 project(brick LANGUAGES C CXX VERSION 0.1)
 
 option(BUILD_SHARED_LIBS "Building shared libraries" ON)
-set(GLOG_ROOT_DIR $ENV{GLOG_ROOT} CACHE PATH "Folder contains Google Glog libraries")
+set(GLOG_ROOT_DIR $ENV{GLOG_ROOT} CACHE PATH "Folder contains Google Glog library")
 set(FFMPEG_ROOT_DIR $ENV{FFMPEG_ROOT} CACHE PATH "Folder contains ffmpeg libraries")
+set(RABBITMQ_ROOT_DIR $ENV{RABBITMQ_ROOT} CACHE PATH "Folder contains rabbitmq-c library")
 
 # use find_package config mode
 list(APPEND CMAKE_PREFIX_PATH ${GLOG_ROOT_DIR})
@@ -19,7 +20,8 @@ endif(GLOG_FOUND)
 
 find_package(FFMPEG REQUIRED)
 if(FFMPEG_FOUND)
-    set(MEDIA_SRC include/media/ffmpeg.h src/media/ffmpeg.cpp
+    set(MEDIA_SRC src/media/ffmpegpriv.h
+        include/media/ffmpeg.h src/media/ffmpeg.cpp
         include/media/ffmpegreader.h src/media/ffmpegreader.cpp
         include/media/ffmpegwriter.h src/media/ffmpegwriter.cpp
         include/media/imageformatconverter.h src/media/imageformatconverter.cpp
@@ -28,11 +30,21 @@ else(FFMPEG_FOUND)
     message(FATAL_ERROR "cannot find ffmpeg")
 endif(FFMPEG_FOUND)
 
-add_library(brick ${LOG_SRC} ${MEDIA_SRC})
-target_link_libraries(brick PUBLIC glog::glog ${FFMPEG_LIBRARIES})
+find_package(RABBITMQ REQUIRED MODULE)
+if(RABBITMQ_FOUND)
+    set(AMQP_SRC src/amqp/amqppriv.h
+        include/amqp/amqpbytes.h src/amqp/amqpbytes.cpp
+    )
+endif(RABBITMQ_FOUND)
+
+add_library(brick ${LOG_SRC} ${MEDIA_SRC} ${AMQP_SRC})
+target_link_libraries(brick PUBLIC glog::glog ${FFMPEG_LIBRARIES} ${RABBITMQ_LIBRARIES})
 target_include_directories(brick PUBLIC
                                   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
                                   $<INSTALL_INTERFACE:include>
+
+                                 PRIVATE
+                                  ${RABBITMQ_INCLUDE_DIRS}
                                   ${FFMPEG_INCLUDE_DIRS}
 )
 set_property(TARGET brick PROPERTY CXX_STANDARD 11)

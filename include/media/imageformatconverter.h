@@ -42,8 +42,8 @@ public:
      * @param dst_pix_format : the destination image pixel format
      * @return : the error code (enum ErrorCode)
      */
-    int create(int src_width, int src_height, PixelFormat src_pix_format,
-               int dst_width, int dst_height, PixelFormat dst_pix_format);
+    int create(int src_width, int src_height, int src_pix_format,
+               int dst_width, int dst_height, int dst_pix_format);
 
     /**
      * @brief convert : convert the source data to the buffer and return the buffer pointer

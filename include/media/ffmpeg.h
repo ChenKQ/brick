@@ -1,28 +1,22 @@
 #ifndef BRICK_FFMPEG_H
 #define BRICK_FFMPEG_H
 
-#ifdef __cplusplus
-
-#ifndef __STDC_CONSTANT_MACROS
-#define __STDC_CONSTANT_MACROS
-#endif
-
-extern "C"{
-#endif
-
-#include <libavutil/avutil.h>
-#include <libavutil/imgutils.h>
-#include <libavutil/samplefmt.h>
-#include <libavutil/timestamp.h>
-#include <libavformat/avformat.h>
-#include <libswscale/swscale.h>
-#include <libswresample/swresample.h>
-
-#ifdef __cplusplus
-}
-#endif
-
+//#include "media/ffmpegpriv.h"
 #include <memory>
+
+
+struct AVFormatContext;
+struct AVOutputFormat;
+struct AVStream;
+struct AVPacket;
+
+struct AVCodecContext;
+struct AVCodec;
+struct AVFrame;
+
+struct SwsContext;
+struct AVDictionary;
+
 
 namespace brick
 {
@@ -74,12 +68,12 @@ enum ErrorCode : int
 
 };
 
-enum PixelFormat
-{
-    BGR24 = AV_PIX_FMT_BGR24,
-    RGB24 = AV_PIX_FMT_RGB24,
-    YUV420P = AV_PIX_FMT_YUV420P
-};
+//enum PixelFormat
+//{
+//    BGR24 = AV_PIX_FMT_BGR24,
+//    RGB24 = AV_PIX_FMT_RGB24,
+//    YUV420P = AV_PIX_FMT_YUV420P
+//};
 
 /**
  * @brief FFMpeg : some useful function for FFMpeg video process
@@ -105,7 +99,7 @@ typedef struct FFMpeg
      * @param [in] height : height of the picture
      * @return
      */
-    static int AllocPicture(AVFrame** new_frame, enum PixelFormat pix_fmt,
+    static int AllocPicture(AVFrame** new_frame, int pix_fmt,
                             int width, int height);
 
 } FFMpeg;
@@ -138,7 +132,7 @@ public:
      * @param width : width of the picture
      * @param height : height of the picture
      */
-    VideoFrame(PixelFormat pix_fmt, int width, int height);
+    VideoFrame(int pix_fmt, int width, int height);
 
     /**
      * @brief ~VideoFrame : deconstructor which will free the memory
@@ -159,7 +153,7 @@ public:
      * @param height : height of the picture
      * @return : ErrorCode
      */
-    int init(PixelFormat pix_fmt, int width, int height);
+    int init(int pix_fmt, int width, int height);
 
     /**
      * @brief getAVFrame : get the AVFrame pointer
@@ -169,7 +163,7 @@ public:
 
 private:
     AVFrame* m_frame = nullptr;
-    PixelFormat m_pixal_format;
+    int m_pixal_format;
     int m_width;
     int m_height;
 

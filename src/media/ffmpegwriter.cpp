@@ -1,3 +1,4 @@
+#include "ffmpegpriv.h"
 #include "media/ffmpegwriter.h"
 
 #include "log/log.h"
@@ -7,13 +8,18 @@ namespace brick
 namespace media
 {
 
+FFMpegWriter::FFMpegWriter():m_pixel_format(AV_PIX_FMT_RGB24)
+{
+
+}
+
 FFMpegWriter::~FFMpegWriter()
 {
     destroy();
 }
 
 int FFMpegWriter::init(const std::string& url, int width, int height, int frameRate,
-                       PixelFormat pixelFormat)
+                       int pixelFormat)
 {
     m_output_name = url;
     m_video_width= width;
@@ -93,7 +99,7 @@ void FFMpegWriter::destroy()
 }
 
 int FFMpegWriter::transfer(AVFrame* dstFrame, const unsigned char * const *data, const int *linesize,
-                           int width, int height, PixelFormat pixelFormat)
+                           int width, int height, int pixelFormat)
 {
     if(width!=m_video_width || height!=m_video_height || pixelFormat!=m_pixel_format)
     {
@@ -290,7 +296,7 @@ int WriteManager::init(const FFMpegWriter& writer)
 }
 
 void WriteManager::fillPicture(FFMpegWriter& writer, const unsigned char * const *data,
-                              const int *linesize, int width, int height, PixelFormat pixelFormat)
+                              const int *linesize, int width, int height, int pixelFormat)
 {
     if(!m_is_writting)
     {
@@ -347,7 +353,7 @@ void WriteManager::start(FFMpegWriter& writer)
     m_thread.detach();
 }
 
-int WriteManager::allocBuffer(PixelFormat pix_fmt, int width, int height)
+int WriteManager::allocBuffer(int pix_fmt, int width, int height)
 {
     for(int i = 0; i < m_buffer_size; ++i)
     {
