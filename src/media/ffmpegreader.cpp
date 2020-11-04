@@ -7,6 +7,12 @@ namespace brick
 namespace media
 {
 
+namespace
+{
+    AVPacket m_pkt;
+}
+
+
 FFMpegReader::~FFMpegReader()
 {
     destroy();
@@ -57,11 +63,13 @@ int FFMpegReader::init(const std::string &url)
     {
         return ErrorCode::AVFRAME_ALLOC_ERROR;
     }
+//    AVPacket* tmp = new AVPacket();
+//    m_pkt.reset(tmp);
 
     /* initialize packet, set data to NULL, let the demuxer fill it */
-    av_init_packet(m_pkt);
-    m_pkt->data = nullptr;
-    m_pkt->size = 0;
+    av_init_packet(&m_pkt);
+    m_pkt.data = nullptr;
+    m_pkt.size = 0;
 
     return 0;
 }
@@ -237,17 +245,17 @@ void FFMpegReader::fetching_frames()
 {
     int ret = 0;
     /* read frames */
-    while(av_read_frame(m_fmt_ctx, m_pkt) >= 0)
+    while(av_read_frame(m_fmt_ctx, &m_pkt) >= 0)
     {
-        if(m_pkt->stream_index == m_video_stream_idx)
+        if(m_pkt.stream_index == m_video_stream_idx)
         {
-            ret = decode_packet(m_video_codec_ctx, m_pkt);
+            ret = decode_packet(m_video_codec_ctx, &m_pkt);
         }
-        else if(m_pkt->stream_index == m_audio_stream_idx)
+        else if(m_pkt.stream_index == m_audio_stream_idx)
         {
-            ret = decode_packet(m_audio_codec_ctx, m_pkt);
+            ret = decode_packet(m_audio_codec_ctx, &m_pkt);
         }
-        av_packet_unref(m_pkt);
+        av_packet_unref(&m_pkt);
 
         if(ret < 0)
         {
@@ -263,28 +271,28 @@ void FFMpegReader::flush_rest()
     /* flush the decoders */
     if(m_video_codec_ctx)
     {
-        decode_packet(m_video_codec_ctx, m_pkt);
+        decode_packet(m_video_codec_ctx, &m_pkt);
     }
     if(m_audio_codec_ctx)
     {
-        decode_packet(m_audio_codec_ctx, m_pkt);
+        decode_packet(m_audio_codec_ctx, &m_pkt);
     }
 }
 
 int FFMpegReader::fetch()
 {
     int ret = 0;
-    if(av_read_frame(m_fmt_ctx, m_pkt) >= 0)
+    if(av_read_frame(m_fmt_ctx, &m_pkt) >= 0)
     {
-        if(m_pkt->stream_index == m_video_stream_idx)
+        if(m_pkt.stream_index == m_video_stream_idx)
         {
-            ret = decode_packet(m_video_codec_ctx, m_pkt);
+            ret = decode_packet(m_video_codec_ctx, &m_pkt);
         }
-        else if(m_pkt->stream_index == m_audio_stream_idx)
+        else if(m_pkt.stream_index == m_audio_stream_idx)
         {
-            ret = decode_packet(m_audio_codec_ctx, m_pkt);
+            ret = decode_packet(m_audio_codec_ctx, &m_pkt);
         }
-        av_packet_unref(m_pkt);
+        av_packet_unref(&m_pkt);
 
         if(ret < 0)
         {

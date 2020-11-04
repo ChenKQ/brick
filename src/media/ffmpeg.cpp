@@ -1,12 +1,10 @@
 #include "ffmpegpriv.h"
 #include "media/ffmpeg.h"
 
-
 namespace brick
 {
 namespace media
 {
-
 int FFMpeg::WriteFrame(AVFormatContext *fmt_ctx, AVCodecContext *codec_ctx, AVStream *stream, AVFrame *frame)
 {
     int ret = 0;
@@ -140,3 +138,4 @@ int VideoFrame::deallocMemory()
 
 }   // namespace media
 }   //namespace brick
+

@@ -1,9 +1,7 @@
 #ifndef BRICK_FFMPEG_H
 #define BRICK_FFMPEG_H
 
-//#include "media/ffmpegpriv.h"
 #include <memory>
-
 
 struct AVFormatContext;
 struct AVOutputFormat;
@@ -16,7 +14,6 @@ struct AVFrame;
 
 struct SwsContext;
 struct AVDictionary;
-
 
 namespace brick
 {
@@ -68,12 +65,16 @@ enum ErrorCode : int
 
 };
 
-//enum PixelFormat
-//{
-//    BGR24 = AV_PIX_FMT_BGR24,
-//    RGB24 = AV_PIX_FMT_RGB24,
-//    YUV420P = AV_PIX_FMT_YUV420P
-//};
+
+enum PixelFormat
+{
+    UNKNOWN = -1,
+    YUV420P,
+    YUV422,
+    RGB24,
+    BGR24
+};
+
 
 /**
  * @brief FFMpeg : some useful function for FFMpeg video process
@@ -170,8 +171,6 @@ private:
     int allocMemory();
     int deallocMemory();
 };
-
-
 
 }   //namespace media
 }   //namespace brick

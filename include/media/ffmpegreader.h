@@ -110,7 +110,8 @@ private:
     AVCodecContext *m_video_codec_ctx = nullptr;
     AVCodecContext *m_audio_codec_ctx = nullptr;
 
-    AVPacket *m_pkt = nullptr;
+//    std::unique_ptr<AVPacket, decltype(deleteAVPacket)*> m_pkt = {nullptr, deleteAVPacket};
+//    std::unique_ptr<AVPacket> m_pkt;
     AVFrame *m_frame = nullptr;
 
     int m_video_width;
