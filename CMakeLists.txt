@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 project(brick LANGUAGES C CXX VERSION 0.1)
 
 option(BUILD_SHARED_LIBS "Building shared libraries" ON)
+option(BUILD_TEST "Building test cases" OFF)
 set(GLOG_ROOT_DIR $ENV{GLOG_ROOT} CACHE PATH "Folder contains Google Glog library")
 set(FFMPEG_ROOT_DIR $ENV{FFMPEG_ROOT} CACHE PATH "Folder contains ffmpeg libraries")
 set(RABBITMQ_ROOT_DIR $ENV{RABBITMQ_ROOT} CACHE PATH "Folder contains rabbitmq-c library")
@@ -34,6 +35,17 @@ find_package(RABBITMQ REQUIRED MODULE)
 if(RABBITMQ_FOUND)
     set(AMQP_SRC src/amqp/amqppriv.h
         include/amqp/amqpbytes.h src/amqp/amqpbytes.cpp
+        include/amqp/rpc.h src/amqp/rpc.cpp
+        include/amqp/table.h src/amqp/table.cpp
+        include/amqp/property.h src/amqp/property.cpp
+        include/amqp/amqpexception.h src/amqp/amqpexception.cpp
+        src/amqp/exceptionpriv.h src/amqp/exceptionpriv.cpp
+        include/amqp/tcpsocket.h src/amqp/tcpsocket.cpp
+        include/amqp/connectionstate.h src/amqp/connectionstate.cpp
+        include/amqp/connection.h src/amqp/connection.cpp
+        include/amqp/queue.h src/amqp/queue.cpp
+        include/amqp/exchange.h src/amqp/exchange.cpp
+        include/amqp/channel.h src/amqp/channel.cpp
     )
 endif(RABBITMQ_FOUND)
 
@@ -51,6 +63,12 @@ set_property(TARGET brick PROPERTY CXX_STANDARD 11)
 if(MSVC)
     set_target_properties(brick PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif(MSVC)
+
+if(BUILD_TEST)
+    add_executable(testAmqp src/amqp/amqptest.cpp)
+    target_link_libraries(testAmqp PRIVATE brick)
+    target_include_directories(testAmqp PRIVATE ${RABBITMQ_INCLUDE_DIRS})
+endif(BUILD_TEST)
 
 install(TARGETS brick
         DESTINATION lib

@@ -1,7 +1,8 @@
-#ifndef BRICK_AMQPPRIV_H
-#define BRICK_AMQPPRIV_H
+#ifndef BRICK_AMQP_AMQPPRIV_H
+#define BRICK_AMQP_AMQPPRIV_H
 
-extern "C"{
+extern "C"
+{
 #include <amqp.h>
 #include <amqp_framing.h>
 #include <amqp_tcp_socket.h>
@@ -24,9 +25,8 @@ inline std::string getTime()
     return tmp;
 }
 
-} // amqp
-} // brick
+}   // namespace amqp
+}   // namespace brick
 
 
-
-#endif // BRICK_AMQPPRIV_H
+#endif // BRICK_AMQP_AMQPPRIV_H
