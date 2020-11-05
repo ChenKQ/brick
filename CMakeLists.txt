@@ -83,7 +83,21 @@ install(FILES include/media/ffmpeg.h
               include/media/ffmpegwriter.h
               include/media/imageformatconverter.h
               include/media/playmanager.h
-        DESTINATION include/media)
+        DESTINATION include/media
+)
+install(FILES   include/amqp/amqpbytes.h
+                include/amqp/rpc.h
+                include/amqp/table.h
+                include/amqp/property.h
+                include/amqp/amqpexception.h
+                include/amqp/tcpsocket.h
+                include/amqp/connectionstate.h
+                include/amqp/connection.h
+                include/amqp/queue.h
+                include/amqp/exchange.h
+                include/amqp/channel.h
+        DESTINATION include/amqp
+)
 
 include(InstallRequiredSystemLibraries)
 #set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/License.txt")
