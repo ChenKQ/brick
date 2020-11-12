@@ -72,9 +72,16 @@ enum PixelFormat
     YUV420P,
     YUV422,
     RGB24,
-    BGR24
+    BGR24,
+    YUV422P,
+    YUV444P,
+    YUV410P,
+    YUV411P,
+    GRAY8,
+    MONOWHITE,
+    MONOBLACK,
+    PAL8
 };
-
 
 /**
  * @brief FFMpeg : some useful function for FFMpeg video process
