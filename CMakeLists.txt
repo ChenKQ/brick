@@ -23,9 +23,9 @@ find_package(FFMPEG REQUIRED)
 if(FFMPEG_FOUND)
     set(MEDIA_SRC src/media/ffmpegpriv.h
         include/media/ffmpeg.h src/media/ffmpeg.cpp
+        include/media/image.h src/media/image.cpp
         include/media/ffmpegreader.h src/media/ffmpegreader.cpp
         include/media/ffmpegwriter.h src/media/ffmpegwriter.cpp
-        include/media/imageformatconverter.h src/media/imageformatconverter.cpp
         include/media/playmanager.h src/media/playmanager.cpp)
 else(FFMPEG_FOUND)
     message(FATAL_ERROR "cannot find ffmpeg")
