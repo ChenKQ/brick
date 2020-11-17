@@ -69,18 +69,42 @@ enum ErrorCode : int
 enum PixelFormat
 {
     UNKNOWN = -1,
-    YUV420P,
-    YUV422,
-    RGB24,
-    BGR24,
-    YUV422P,
-    YUV444P,
-    YUV410P,
-    YUV411P,
-    GRAY8,
-    MONOWHITE,
-    MONOBLACK,
-    PAL8
+
+    // grey
+    GRAY8 = 8,
+
+    // rgb 24 bits
+    RGB24 = 2,
+    BGR24 = 3,
+
+    // rgb 32 bits
+    ARGB = 25,
+    RGBA = 26,
+    ABGR = 27,
+    BGRA = 28,
+
+    // yuv 444 24 bits, 32 bits
+    YUV444P = 5, // I444, Y444
+    NV24 = 191, // YYYY UVUVUVUV
+    NV42 = 192, // YYYY VUVUVUVU
+
+    YUVA444P = 81,
+
+    // yuv422 16bits, 24bits
+    YUYV422 = 1,
+    YVYU422 = 110,
+    YUYV422P = 4,
+    UYVY422 = 15,
+    NV16 = 103, // YYYY UVUV
+
+    YUVA422P = 80,
+
+    // yuv420 12 bits, 20 bits
+    YUV420P = 0,
+    NV12 = 23,  // YYYY UV
+    NV21 = 24, // YYYY VU
+
+    YUVA420P = 33,
 };
 
 /**
@@ -111,73 +135,6 @@ typedef struct FFMpeg
                             int width, int height);
 
 } FFMpeg;
-
-class VideoFrame;
-void swap(VideoFrame& lhs, VideoFrame& rhs);
-
-/**
- * @brief The VideoFrame class : wrap the AVFrame for automatic memory management
- * The instance of this class cannot be copied but can be moved.
- * example:
- *      VideoFrame frame;
- *      frame.init(PixelFormat::YUV420P, 1920, 1080);
- *      AVFrame* f = frame.getAVFrame();
- *      // some actions on the AVFrame
- */
-class VideoFrame
-{
-    friend void swap(VideoFrame& lhs, VideoFrame& rhs);
-public:
-    /**
-     * @brief VideoFrame : default constructor.
-     * call init method if the instance is created by this way
-     */
-    VideoFrame() = default;
-
-    /**
-     * @brief VideoFrame : constructor
-     * @param pix_fmt : pixel format of the frame
-     * @param width : width of the picture
-     * @param height : height of the picture
-     */
-    VideoFrame(int pix_fmt, int width, int height);
-
-    /**
-     * @brief ~VideoFrame : deconstructor which will free the memory
-     */
-    ~VideoFrame();
-
-    /* copy constructor and copy assignment are forbidden
-       move constructor and move assignment are allowed */
-    VideoFrame(const VideoFrame&) = delete;
-    VideoFrame(VideoFrame&&) noexcept;
-    VideoFrame& operator= (const VideoFrame&) = delete;
-    VideoFrame &operator= (VideoFrame&&);
-
-    /**
-     * @brief init : allocate the memory according to the parameters
-     * @param pix_fmt : pixel format of the frame
-     * @param width : width of the picture
-     * @param height : height of the picture
-     * @return : ErrorCode
-     */
-    int init(int pix_fmt, int width, int height);
-
-    /**
-     * @brief getAVFrame : get the AVFrame pointer
-     * @return : pointer to AVFrame created
-     */
-    inline AVFrame* getAVFrame() {return m_frame;}
-
-private:
-    AVFrame* m_frame = nullptr;
-    int m_pixal_format;
-    int m_width;
-    int m_height;
-
-    int allocMemory();
-    int deallocMemory();
-};
 
 }   //namespace media
 }   //namespace brick

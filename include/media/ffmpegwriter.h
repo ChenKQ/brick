@@ -2,6 +2,7 @@
 #define BRICK_FFMPEGWRITER_H
 
 #include "ffmpeg.h"
+#include "image.h"
 
 #include <string>
 #include <mutex>
@@ -157,7 +158,7 @@ private:
 //    int m_width;
 //    int m_height;
     const int m_buffer_size = 2;
-    std::vector<VideoFrame> m_buffer;
+    std::vector<Image> m_buffer;
 //    std::vector<bool> m_in_use;
 //    std::vector<bool> m_filled;
     std::mutex m_mtx;
