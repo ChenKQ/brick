@@ -28,6 +28,8 @@ public:
     void play(FFMpegReader& reader, bool playnow = false);
     void stop(FFMpegReader& reader);
 
+    inline bool stopped() { return atom_stop; }
+
 private:
     std::thread t_producer;
 
