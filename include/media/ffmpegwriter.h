@@ -33,7 +33,7 @@ public:
     FFMpegWriter(const FFMpegWriter& ) = delete;
     FFMpegWriter& operator=(const FFMpegWriter&) = delete;
 
-    /* move constructor and move assignment are forbidden */
+    /* move constructor and move assignment */
     FFMpegWriter(FFMpegWriter&& ) noexcept;
     FFMpegWriter& operator=(FFMpegWriter &&);
 
