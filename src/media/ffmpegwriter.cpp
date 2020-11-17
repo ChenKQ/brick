@@ -18,6 +18,33 @@ FFMpegWriter::~FFMpegWriter()
     destroy();
 }
 
+FFMpegWriter::FFMpegWriter(FFMpegWriter &&rhs) noexcept:
+    m_format(rhs.m_format),m_format_ctx(rhs.m_format_ctx),
+    m_video_stream(rhs.m_video_stream),
+    m_video_encode_ctx(rhs.m_video_encode_ctx), m_video_encoder(rhs.m_video_encoder),
+    m_option(rhs.m_option),
+    m_output_name(rhs.m_output_name), m_next_pts(rhs.m_next_pts),
+    m_video_width(rhs.m_video_width), m_video_height(rhs.m_video_height),
+    m_fps(rhs.m_fps), m_pixel_format(rhs.m_pixel_format),
+    m_have_video(rhs.m_have_video), m_encode_video(rhs.m_encode_video)
+{
+    rhs.m_format = nullptr;
+    rhs.m_format_ctx = nullptr;
+
+    rhs.m_video_stream = nullptr;
+
+    rhs.m_video_encode_ctx = nullptr;
+    rhs.m_video_encoder = nullptr;
+
+    rhs.m_option = nullptr;
+}
+
+FFMpegWriter &FFMpegWriter::operator=(FFMpegWriter &&rhs)
+{
+    swap(*this, rhs);
+    return *this;
+}
+
 int FFMpegWriter::init(const std::string& url, int width, int height, int frameRate,
                        int pixelFormat)
 {
@@ -73,6 +100,12 @@ int FFMpegWriter::init(const std::string& url, int width, int height, int frameR
     return ErrorCode::SUCCESS;
 }
 
+void FFMpegWriter::reset()
+{
+    destroy();
+    init(m_output_name, m_video_width, m_video_height, m_fps, m_pixel_format);
+}
+
 void FFMpegWriter::destroy()
 {
     /* Write the trailer, if any. The trailer must be written before you
@@ -96,62 +129,6 @@ void FFMpegWriter::destroy()
 
     /* free the stream */
     avformat_free_context(m_format_ctx);
-}
-
-int FFMpegWriter::transfer(AVFrame* dstFrame, const unsigned char * const *data, const int *linesize,
-                           int width, int height, int pixelFormat)
-{
-    if(width!=m_video_width || height!=m_video_height || pixelFormat!=m_pixel_format)
-    {
-        if(m_sws_ctx == nullptr)
-        {
-            m_sws_ctx = sws_getContext(width, height,
-                            static_cast<AVPixelFormat>(pixelFormat),
-                            m_video_width, m_video_height,
-                            static_cast<AVPixelFormat>(m_pixel_format),
-                            SWS_BICUBIC, nullptr, nullptr, nullptr);
-        }
-        if(m_sws_ctx == nullptr)
-        {
-            return AVSWS_GET_CONTEXT_ERROR;
-        }
-
-        sws_scale(m_sws_ctx, (const uint8_t**)data, linesize, 0, height,
-                  dstFrame->data, dstFrame->linesize);
-    }
-    else
-    {
-        av_image_copy(dstFrame->data, dstFrame->linesize, (const uint8_t**)data,
-                      linesize, static_cast<AVPixelFormat>(m_pixel_format),
-                      m_video_width, m_video_height);
-    }
-    dstFrame->pts = m_next_pts++;
-    return ErrorCode::SUCCESS;
-
-//    if(m_pixel_format == PixelFormat::YUV420P)
-//    {
-//        av_image_copy(dstFrame->data, dstFrame->linesize, (const uint8_t**)data,
-//                      linesize, static_cast<AVPixelFormat>(m_pixel_format),
-//                      m_video_width, m_video_height);
-//    }
-//    else if(m_pixel_format == PixelFormat::RGB24)
-//    {
-//        if(m_sws_ctx == nullptr)
-//        {
-//            m_sws_ctx = sws_getContext(m_video_width, m_video_height,
-//                  static_cast<AVPixelFormat>(m_pixel_format),
-//                  m_video_width, m_video_height, AVPixelFormat::AV_PIX_FMT_YUV420P,
-//                                       SWS_BICUBIC, nullptr, nullptr, nullptr);
-//        }
-//        if(m_sws_ctx == nullptr)
-//        {
-//            return AVSWS_GET_CONTEXT_ERROR;
-//        }
-
-//        sws_scale(m_sws_ctx, (const uint8_t**)data, linesize, 0, m_video_height,
-//                  dstFrame->data, dstFrame->linesize);
-//    }
-//    dstFrame->pts = m_next_pts++;
 }
 
 int FFMpegWriter::write(AVFrame* frame)
@@ -246,7 +223,6 @@ int FFMpegWriter::open_video()
 int FFMpegWriter::close_stream()
 {
     avcodec_free_context(&m_video_encode_ctx);
-    sws_freeContext(m_sws_ctx);
     return 0;
 }
 
@@ -295,7 +271,7 @@ int WriteManager::init(const FFMpegWriter& writer)
     return allocBuffer(writer.getPixelFormat(), writer.getWidth(), writer.getHeight());
 }
 
-void WriteManager::fillPicture(FFMpegWriter& writer, const unsigned char * const *data,
+void WriteManager::fillPicture(const unsigned char * const *data,
                               const int *linesize, int width, int height, int pixelFormat)
 {
     if(!m_is_writting)
@@ -304,8 +280,7 @@ void WriteManager::fillPicture(FFMpegWriter& writer, const unsigned char * const
     }
 
     Image& frame = m_buffer[m_fill_count & 1];
-    writer.transfer(frame.getAVFrame(), data, linesize, width, height, pixelFormat);
-//    writer.fetch(frame.getAVFrame(), data, linesize);
+    frame.fillBuffer(data, linesize, width, height, pixelFormat, true);
     m_cv_write.notify_one();
 }
 
@@ -368,6 +343,25 @@ int WriteManager::deallocBuffer()
     m_buffer.clear();
 
     return ErrorCode::SUCCESS;
+}
+
+void swap(FFMpegWriter &lhs, FFMpegWriter &rhs)
+{
+    using std::swap;
+    swap(lhs.m_format, rhs.m_format);
+    swap(lhs.m_format_ctx, rhs.m_format_ctx);
+    swap(lhs.m_video_stream, rhs.m_video_stream);
+    swap(lhs.m_video_encode_ctx, rhs.m_video_encode_ctx);
+    swap(lhs.m_video_encoder, rhs.m_video_encoder);
+    swap(lhs.m_option, rhs.m_option);
+    swap(lhs.m_output_name, rhs.m_output_name);
+    swap(lhs.m_next_pts, rhs.m_next_pts);
+    swap(lhs.m_video_width, rhs.m_video_width);
+    swap(lhs.m_video_height, rhs.m_video_height);
+    swap(lhs.m_fps, rhs.m_fps);
+    swap(lhs.m_pixel_format, rhs.m_pixel_format);
+    swap(lhs.m_have_video, rhs.m_have_video);
+    swap(lhs.m_encode_video, rhs.m_encode_video);
 }
 
 }   //namespace media

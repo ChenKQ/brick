@@ -15,21 +15,27 @@ namespace brick
 namespace media
 {
 
+class FFMpegWriter;
+void swap(FFMpegWriter& lhs, FFMpegWriter&rhs);
+
 /**
  * @brief The FFMpegWriter class : it is used for video writting
  */
 class FFMpegWriter final
 {
+    friend void swap(FFMpegWriter&, FFMpegWriter&);
 public:
     /* Constructor and Deconstructor */
     FFMpegWriter();
     ~FFMpegWriter();
 
-    /* copy and move are forbidden */
+    /* copy constructor and copy assignment are forbidden */
     FFMpegWriter(const FFMpegWriter& ) = delete;
-    FFMpegWriter(FFMpegWriter&& ) = delete;
     FFMpegWriter& operator=(const FFMpegWriter&) = delete;
-    FFMpegWriter& operator=(FFMpegWriter &&) = delete;
+
+    /* move constructor and move assignment are forbidden */
+    FFMpegWriter(FFMpegWriter&& ) noexcept;
+    FFMpegWriter& operator=(FFMpegWriter &&);
 
     /**
      * @brief init : configure the ffmpeg objects
@@ -44,17 +50,9 @@ public:
              int pixelFormat);
 
     /**
-     * @brief transer : transfer the frame data from data to dstFrame
-     * @param dstFrame : where to save the frame data, it should be allocated before
-     * @param data : the source data ptr
-     * @param linesize : the linesize of each plane
-     * @param width : the width of each input video frame
-     * @param height : the height of each input video frame
-     * @param pixelFormat : pixel format of each input picture
-     * @return ErrorCode
+     * @brief reset : reset the writer
      */
-    int transfer(AVFrame* dstFrame, const unsigned char* const* data, const int* linesize,
-                 int width, int height, int pixelFormat);
+    void reset();
 
     /**
      * @brief write : transfer the picture in frame to AVPacket and then save to disk
@@ -68,6 +66,15 @@ public:
     inline int getHeight() const {return m_video_height;}
 
 private:
+    int add_video_stream(enum AVCodecID codec_id);
+
+    int open_video();
+
+    int close_stream();
+
+    void destroy();
+
+private:
     AVOutputFormat* m_format = nullptr;
     AVFormatContext* m_format_ctx = nullptr;
 
@@ -75,8 +82,6 @@ private:
 
     AVCodecContext* m_video_encode_ctx = nullptr;
     AVCodec* m_video_encoder = nullptr;
-
-    SwsContext* m_sws_ctx = nullptr;
 
     AVDictionary *m_option = nullptr;
 
@@ -89,15 +94,6 @@ private:
     int m_pixel_format;
     int m_have_video = 0;
     int m_encode_video = 0;
-
-private:
-    int add_video_stream(enum AVCodecID codec_id);
-
-    int open_video();
-
-    int close_stream();
-
-    void destroy();
 };
 
 /**
@@ -138,7 +134,7 @@ public:
      * @param height : the height of each input video frame
      * @param pixelFormat : pixel format of each input picture
      */
-    void fillPicture(FFMpegWriter& writer, const unsigned char* const* data, const int* linesize,
+    void fillPicture(const unsigned char* const* data, const int* linesize,
                      int width, int height, int pixelFormat);
 
     /**
@@ -154,18 +150,12 @@ public:
 
 
 private:
-//    PixelFormat m_pixel_format;
-//    int m_width;
-//    int m_height;
     const int m_buffer_size = 2;
     std::vector<Image> m_buffer;
-//    std::vector<bool> m_in_use;
-//    std::vector<bool> m_filled;
     std::mutex m_mtx;
     std::condition_variable m_cv_write;
     std::atomic<std::int64_t> m_fill_count;
     std::atomic<bool> m_is_writting;
-//    size_t m_fetch_count = 0;
 
     int m_pts_index = 0;
 
