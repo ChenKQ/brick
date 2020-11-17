@@ -81,7 +81,7 @@ install(FILES include/log/log.h DESTINATION include/log)
 install(FILES include/media/ffmpeg.h
               include/media/ffmpegreader.h
               include/media/ffmpegwriter.h
-              include/media/imageformatconverter.h
+              include/media/image.h
               include/media/playmanager.h
         DESTINATION include/media
 )
