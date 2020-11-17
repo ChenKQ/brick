@@ -303,7 +303,7 @@ void WriteManager::fillPicture(FFMpegWriter& writer, const unsigned char * const
         ++m_fill_count;
     }
 
-    VideoFrame& frame = m_buffer[m_fill_count & 1];
+    Image& frame = m_buffer[m_fill_count & 1];
     writer.transfer(frame.getAVFrame(), data, linesize, width, height, pixelFormat);
 //    writer.fetch(frame.getAVFrame(), data, linesize);
     m_cv_write.notify_one();
@@ -325,7 +325,7 @@ void WriteManager::keepWritingFrames(FFMpegWriter& writer)
         }
 
         m_is_writting = true;
-        VideoFrame& frame = m_buffer[(m_fill_count-1) & 1];
+        Image& frame = m_buffer[(m_fill_count-1) & 1];
         AVFrame* f = frame.getAVFrame();
         if((m_fill_count - m_pts_index) >= 2)
         {
@@ -357,7 +357,7 @@ int WriteManager::allocBuffer(int pix_fmt, int width, int height)
 {
     for(int i = 0; i < m_buffer_size; ++i)
     {
-        m_buffer.push_back({pix_fmt, width, height});
+        m_buffer.push_back({width, height, pix_fmt});
     }
 
     return ErrorCode::SUCCESS;
