@@ -129,10 +129,12 @@ typedef struct FFMpeg
      * @param [in] pix_fmt : pixel format of the allocated frame
      * @param [in] width : width of the picture
      * @param [in] height : height of the picture
+     * @param [in] align: the memory align for each row. default 0 which means that
+     * memory will be allocated according to the CPU automatically.
      * @return
      */
     static int AllocPicture(AVFrame** new_frame, int pix_fmt,
-                            int width, int height);
+                            int width, int height, int align=0);
 
 } FFMpeg;
 

@@ -46,7 +46,7 @@ int FFMpeg::WriteFrame(AVFormatContext *fmt_ctx, AVCodecContext *codec_ctx, AVSt
     return ret == AVERROR_EOF ? 1 : 0;
 }
 
-int FFMpeg::AllocPicture(AVFrame **new_frame, int pix_fmt, int width, int height)
+int FFMpeg::AllocPicture(AVFrame **new_frame, int pix_fmt, int width, int height, int align)
 {
     AVFrame* picture = nullptr;
 
@@ -60,7 +60,7 @@ int FFMpeg::AllocPicture(AVFrame **new_frame, int pix_fmt, int width, int height
     picture->width = width;
     picture->height = height;
 
-    int ret = av_frame_get_buffer(picture, 0);
+    int ret = av_frame_get_buffer(picture, align);
     if(ret < 0 )
     {
         return AVFRAME_GET_BUFFER_ERROR;
