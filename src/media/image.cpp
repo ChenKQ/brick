@@ -25,14 +25,16 @@ Image &Image::operator=(Image &&rhs)
     return *this;
 }
 
-Image::Image(int width, int height, int pixelFormat)
+Image::Image(int width, int height, int pixelFormat, int align)
 {
-    alloc(width, height, pixelFormat);
+    m_align = align;
+    alloc(width, height, pixelFormat, align);
 }
 
-Image::Image(const unsigned char * const *data, const int *linesize, int width, int height, int pixelFormat)
+Image::Image(const unsigned char * const *data, const int *linesize, int width, int height, int pixelFormat, int align)
 {
-    int flag = alloc(width, height, pixelFormat);
+    m_align = align;
+    int flag = alloc(width, height, pixelFormat, align);
     if(flag < 0)
         return;
     av_image_copy(m_frame->data, m_frame->linesize,
@@ -73,11 +75,6 @@ int Image::rescaleFrom(const unsigned char * const *data, const int *linesize, i
         m_sws_context = sws_getContext(width, height, static_cast<AVPixelFormat>(pixelFormat),
                                        m_frame->width, m_frame->height, static_cast<AVPixelFormat>(m_frame->format),
                                        SWS_BICUBIC, nullptr, nullptr, nullptr);
-//        m_sws_context = sws_getContext(m_frame->width, m_frame->height,
-//                                       static_cast<AVPixelFormat>(m_frame->format),
-//                                       width, height,
-//                                       static_cast<AVPixelFormat>(pixelFormat),
-//                                       SWS_BICUBIC, nullptr, nullptr, nullptr);
     }
     if(m_sws_context == nullptr)
     {
@@ -159,6 +156,13 @@ const int *Image::getLineSize() const
     return nullptr;
 }
 
+int Image::getBufferSize() const
+{
+    int bufferSize = av_image_get_buffer_size(static_cast<AVPixelFormat>(m_frame->format),
+                                              m_frame->width, m_frame->height, m_align);
+    return bufferSize;
+}
+
 unsigned char** Image::getDataPtr() const
 {
     if(m_frame!=nullptr)
@@ -173,32 +177,9 @@ AVFrame *Image::getAVFrame() const
     return m_frame;
 }
 
-int Image::alloc(int width, int height, int pixFormat)
+int Image::alloc(int width, int height, int pixFormat, int align)
 {
-    return FFMpeg::AllocPicture(&m_frame, pixFormat, width, height);
-//    m_frame = av_frame_alloc();
-//    if(!m_frame)
-//    {
-//        return AVFRAME_ALLOC_ERROR;
-//    }
-
-//    m_frame->width = width;
-//    m_frame->height = height;
-//    m_frame->format = pixFormat;
-
-//    int ret = av_frame_get_buffer(m_frame, 0);
-//    if(ret < 0 )
-//    {
-//        return AVFRAME_GET_BUFFER_ERROR;
-//    }
-//    return ErrorCode::SUCCESS;
-//    int ret = av_image_alloc(m_pData, m_lineSize, width, height,
-//                             static_cast<AVPixelFormat>(pixFormat), 1);
-//    if(ret < 0)
-//    {
-//        return AVUTIL_IMAGE_ALLOC_ERROR;
-//    }
-//    return ErrorCode::SUCCESS;
+    return FFMpeg::AllocPicture(&m_frame, pixFormat, width, height, align);
 }
 
 void Image::dealloc()
@@ -208,14 +189,6 @@ void Image::dealloc()
         av_frame_free(&m_frame);
         m_frame = nullptr;
     }
-//    if(!m_pData[0])
-//    {
-//        av_freep(&m_pData[0]);
-//        for(size_t i=0; i<NumberPlanes; ++i)
-//        {
-//            m_pData[i] = nullptr;
-//        }
-//    }
 }
 
 void swap(Image &lhs, Image &rhs)
@@ -223,6 +196,7 @@ void swap(Image &lhs, Image &rhs)
     using std::swap;
     swap(lhs.m_frame, rhs.m_frame);
     swap(lhs.m_sws_context, rhs.m_sws_context);
+    swap(lhs.m_align, rhs.m_align);
 }
 
 }   // namespace media

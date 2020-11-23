@@ -42,7 +42,7 @@ public:
      * @param pixelFormat : the pixel format of the image.
      * Refer to ```brick::media::PixelFormat``` in "media/ffmpeg.h" for more details.
      */
-    Image(int width, int height, int pixelFormat);
+    Image(int width, int height, int pixelFormat, int align=0);
 
     /**
      * @brief Image : it alloc the memory buffer and then copy the data into buffer
@@ -53,7 +53,7 @@ public:
      * @param pixelFormat : the pixel format of the source image
      */
     Image(const unsigned char* const* data, const int* linesize,
-          int width, int height, int pixelFormat);
+          int width, int height, int pixelFormat, int align=0);
 
     /**
      * @brief fillBuffer : it fills the buffer with the image in ```data```
@@ -125,6 +125,12 @@ public:
     const int* getLineSize() const;
 
     /**
+     * @brief getBufferSize : get the required buffer size for the image
+     * @return : the buffer size required for the image
+     */
+    int getBufferSize() const ;
+
+    /**
      * @brief getDataPtr : get the pointer to the image raw data
      * @return : the pointer to the image raw data
      */
@@ -133,7 +139,7 @@ public:
     AVFrame* getAVFrame() const;
 
 private:
-    int alloc(int width, int height, int pixFormat);
+    int alloc(int width, int height, int pixFormat, int align=0);
     void dealloc();
 
     int rescaleFrom(const unsigned char* const* data, const int* linesize,
@@ -144,6 +150,8 @@ private:
 private:
     AVFrame* m_frame = nullptr;
     SwsContext* m_sws_context = nullptr;
+
+    int m_align = 32;
 };
 
 }   // namespace media
