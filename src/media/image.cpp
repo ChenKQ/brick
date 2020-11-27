@@ -52,6 +52,7 @@ bool Image::fillBuffer(const unsigned char * const *data, const int *linesize, i
             return false;
         }
     }
+
     if((width!=m_frame->width) || (height!=m_frame->height) ||
             (pixelFormat!=m_frame->format))
     {
@@ -66,9 +67,12 @@ bool Image::fillBuffer(const unsigned char * const *data, const int *linesize, i
         {
             return false;
         }
-
     }
-    return copyFrom(data, linesize, width, height, pixelFormat);
+    else
+    {
+        return copyFrom(data, linesize, width, height, pixelFormat);
+    }
+
 }
 
 int Image::rescaleFrom(const unsigned char * const *data, const int *linesize, int width, int height, int pixelFormat)
@@ -86,7 +90,7 @@ int Image::rescaleFrom(const unsigned char * const *data, const int *linesize, i
 
     int flag = sws_scale(m_sws_context, data, linesize, 0, height,
               m_frame->data, m_frame->linesize);
-    if(flag !=0)
+    if(flag !=height)
     {
         return ErrorCode::AVSWS_SCALE_ERROR;
     }
