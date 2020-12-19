@@ -1,4 +1,4 @@
-#include "media/image.h"
+﻿#include "media/image.h"
 
 #include "media/ffmpeg.h"
 #include "ffmpegpriv.h"
@@ -44,14 +44,7 @@ Image::Image(const unsigned char * const *data, const int *linesize, int width, 
 
 bool Image::fillBuffer(const unsigned char * const *data, const int *linesize, int width, int height, int pixelFormat,bool fit)
 {
-    if(empty())
-    {
-        int flag = alloc(width, height, pixelFormat);
-        if(ErrorCode::SUCCESS != flag)
-        {
-            return false;
-        }
-    }
+    assert(!(empty()));
 
     if((width!=m_frame->width) || (height!=m_frame->height) ||
             (pixelFormat!=m_frame->format))
