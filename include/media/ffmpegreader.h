@@ -136,7 +136,7 @@ private:
     int open_codec_context(int *stream_idx,
                            AVCodecContext **dec_ctx,
                            AVFormatContext *fmt_ctx,
-                           enum AVMediaType type);
+                           int type);
 
     /**
      * @brief decode_packet: get AVPackets and then get the

@@ -22,7 +22,7 @@ set(RABBITMQ_LIB_SEARCH_PATHS
 
 find_path(RABBITMQ_INCLUDE_DIR amqp.h PATHS ${RABBITMQ_INCLUDE_SEARCH_PATHS})
 
-find_library(RABBITMQ_LIBRARY NAMES rabbitmq.4 PATHS ${RABBITMQ_LIB_SEARCH_PATHS})
+find_library(RABBITMQ_LIBRARY NAMES rabbitmq.4 rabbitmq PATHS ${RABBITMQ_LIB_SEARCH_PATHS})
 
 find_package_handle_standard_args(  RABBITMQ
                                     DEFAULT_MSG

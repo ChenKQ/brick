@@ -11,6 +11,8 @@
 #include "amqppriv.h"
 #include "amqp/amqpbytes.h"
 
+#include <cstring>
+
 namespace brick
 {
 namespace amqp

@@ -1,6 +1,8 @@
 #ifndef BRICK_IMAGE_H
 #define BRICK_IMAGE_H
 
+#include <cstddef>
+
 struct SwsContext;
 struct AVFrame;
 
@@ -22,7 +24,7 @@ class Image
 {
     friend void swap(Image& lhs, Image &rhs);
 public:
-    static constexpr size_t NumberPlanes = 4;
+    static constexpr std::size_t NumberPlanes = 4;
 public:
     Image() = default;
     ~Image();

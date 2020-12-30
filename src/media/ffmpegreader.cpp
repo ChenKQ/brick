@@ -88,9 +88,9 @@ void FFMpegReader::installActionsOnFetchedVideoFrame(const std::function<FFMpegR
 }
 
 
-int FFMpegReader::open_codec_context(int *stream_idx, AVCodecContext **dec_ctx, AVFormatContext *fmt_ctx, AVMediaType type)
+int FFMpegReader::open_codec_context(int *stream_idx, AVCodecContext **dec_ctx, AVFormatContext *fmt_ctx, int type)
 {
-    int ret = av_find_best_stream(m_fmt_ctx, type, -1, -1, nullptr, 0);
+    int ret = av_find_best_stream(m_fmt_ctx, static_cast<AVMediaType>(type), -1, -1, nullptr, 0);
     if(ret < 0)
     {
         return ErrorCode::AVFORMAT_FIND_BEST_STREAM_ERROR;

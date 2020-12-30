@@ -9,6 +9,7 @@
 #include <vector>
 #include <atomic>
 #include <thread>
+#include <condition_variable>
 
 namespace brick
 {
@@ -66,7 +67,7 @@ public:
     inline int getHeight() const {return m_video_height;}
 
 private:
-    int add_video_stream(enum AVCodecID codec_id);
+    int add_video_stream(int codec_id);
 
     int open_video();
 

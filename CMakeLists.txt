@@ -19,7 +19,7 @@ else(GLOG_FOUND)
     message(FATAL_ERROR "cannot find glog")
 endif(GLOG_FOUND)
 
-find_package(FFMPEG REQUIRED)
+find_package(FFMPEG REQUIRED MODULE)
 if(FFMPEG_FOUND)
     set(MEDIA_SRC src/media/ffmpegpriv.h
         include/media/ffmpeg.h src/media/ffmpeg.cpp
@@ -49,8 +49,16 @@ if(RABBITMQ_FOUND)
     )
 endif(RABBITMQ_FOUND)
 
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    list(APPEND THREAD_LINK_LIBS "pthread")
+endif()
+
 add_library(brick ${LOG_SRC} ${MEDIA_SRC} ${AMQP_SRC})
-target_link_libraries(brick PUBLIC glog::glog ${FFMPEG_LIBRARIES} ${RABBITMQ_LIBRARIES})
+target_link_libraries(brick PUBLIC glog::glog
+                                   ${FFMPEG_LIBRARIES}
+                                   ${RABBITMQ_LIBRARIES}
+                                   ${THREAD_LINK_LIBS})
+
 target_include_directories(brick PUBLIC
                                   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
                                   $<INSTALL_INTERFACE:include>

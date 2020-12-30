@@ -141,9 +141,9 @@ int FFMpegWriter::write(AVFrame* frame)
     return ErrorCode::SUCCESS;
 }
 
-int FFMpegWriter::add_video_stream(enum AVCodecID codec_id)
+int FFMpegWriter::add_video_stream(int codec_id)
 {
-    m_video_encoder = avcodec_find_encoder(codec_id);
+    m_video_encoder = avcodec_find_encoder(static_cast<AVCodecID>(codec_id));
     if(!m_video_encoder)
     {
         return AVCODEC_FIND_ENCODER_ERROR;
@@ -164,7 +164,7 @@ int FFMpegWriter::add_video_stream(enum AVCodecID codec_id)
     }
     m_video_encode_ctx = c;
 
-    c->codec_id = codec_id;
+    c->codec_id = static_cast<AVCodecID>(codec_id);
     c->bit_rate = 4000000;
     c->width = m_video_width;
     c->height = m_video_height;
