@@ -13,6 +13,11 @@ namespace
 }
 
 
+FFMpegReader::FFMpegReader()
+{
+    av_register_all();
+}
+
 FFMpegReader::~FFMpegReader()
 {
     destroy();
@@ -23,7 +28,8 @@ int FFMpegReader::init(const std::string &url)
     m_url = url;
 
     /* open input file, and allocate format context */
-    if(avformat_open_input(&m_fmt_ctx, url.c_str(), nullptr, nullptr) < 0)
+    int code = avformat_open_input(&m_fmt_ctx, url.c_str(), nullptr, nullptr);
+    if(code < 0)
     {
         return ErrorCode::AVFORMAT_OPEN_INPUT_ERROR;
     }

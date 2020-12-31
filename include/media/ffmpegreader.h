@@ -38,7 +38,7 @@ public:
     /**
      * @brief FFMpegReader : constructor
      */
-    FFMpegReader() = default;
+    FFMpegReader();
 
     /**
      * @brief ~FFMpegReader : deconstructor, destroy ffmpeg resources
